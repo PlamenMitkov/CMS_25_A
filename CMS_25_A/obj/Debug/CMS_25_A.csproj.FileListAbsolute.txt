@@ -1,0 +1,25 @@
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\bin\Debug\CMS_25_A.exe.config
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\bin\Debug\CMS_25_A.exe
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\bin\Debug\CMS_25_A.pdb
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.csprojResolveAssemblyReference.cache
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.CustomerForm.resources
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.Form1.resources
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.JobDetailsForm.resources
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.Properties.Resources.resources
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.workerForm.resources
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.csproj.GenerateResource.Cache
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.exe
+D:\Projects Visual Studio\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.pdb
+C:\temp\CMS_25_A\CMS_25_A\bin\Debug\CMS_25_A.exe.config
+C:\temp\CMS_25_A\CMS_25_A\bin\Debug\CMS_25_A.exe
+C:\temp\CMS_25_A\CMS_25_A\bin\Debug\CMS_25_A.pdb
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.csproj.AssemblyReference.cache
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.CustomerForm.resources
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.Form1.resources
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.JobDetailsForm.resources
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.Properties.Resources.resources
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.workerForm.resources
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.csproj.GenerateResource.cache
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.csproj.CoreCompileInputs.cache
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.exe
+C:\temp\CMS_25_A\CMS_25_A\obj\Debug\CMS_25_A.pdb
