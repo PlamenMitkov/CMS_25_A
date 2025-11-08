@@ -7,7 +7,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Data.SqlClient;
+using MySql.Data.MySqlClient;
+using System.Configuration;
 using Excel = Microsoft.Office.Interop.Excel;
 using Word = Microsoft.Office.Interop.Word;
 using Microsoft.Office.Interop.Excel;
@@ -18,7 +19,12 @@ namespace CMS_25_A
 {
     public partial class CustomerForm : Form
     {
-        SqlConnection con = new SqlConnection(@"Data Source=K06R208PC08\SQLEXPRESS;Initial Catalog=CMS_25_A;User ID=student;Password=student");
+        // Use connection string from App.config instead of hardcoded value
+        private MySqlConnection GetConnection()
+        {
+            string connectionString = ConfigurationManager.ConnectionStrings["CMS_25_A.Properties.Settings.CMS_25_AConnectionString"].ConnectionString;
+            return new MySqlConnection(connectionString);
+        }
 
         public CustomerForm()
         {
@@ -59,12 +65,22 @@ namespace CMS_25_A
 
         private void Save_Click(object sender, EventArgs e)
         {
-            con.Open();
-            SqlCommand cmd = con.CreateCommand();
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = "insert into tblCustomer values ('" + carNoTextBox.Text + "','" + nameTextBox.Text + "','" + addressTextBox.Text + "','" + modelTextBox.Text + "' )";
-            cmd.ExecuteNonQuery();
-            con.Close();
+            // Fixed: Use parameterized query to prevent SQL injection
+            using (MySqlConnection con = GetConnection())
+            {
+                con.Open();
+                MySqlCommand cmd = new MySqlCommand(
+                    "INSERT INTO tblCustomer (CarNo, Name, Address, Model) VALUES (@CarNo, @Name, @Address, @Model)", 
+                    con);
+                
+                cmd.Parameters.AddWithValue("@CarNo", carNoTextBox.Text);
+                cmd.Parameters.AddWithValue("@Name", nameTextBox.Text);
+                cmd.Parameters.AddWithValue("@Address", addressTextBox.Text);
+                cmd.Parameters.AddWithValue("@Model", modelTextBox.Text);
+                
+                cmd.ExecuteNonQuery();
+                con.Close();
+            }
 
             MessageBox.Show("Good!");
 

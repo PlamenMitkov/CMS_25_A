@@ -1,0 +1,216 @@
+================================================================================
+CODE CHANGES REVIEW - SQL Server to MySQL Migration
+================================================================================
+
+## 📋 SUMMARY OF CHANGES
+
+Total Files Modified: 4
+Security Issues Fixed: 2 Critical
+Database Provider Changed: System.Data.SqlClient → MySql.Data.MySqlClient
+
+================================================================================
+## 1. App.config - CONNECTION STRING CHANGE
+================================================================================
+
+BEFORE (SQL Server):
+-----------------------------------
+<connectionStrings>
+    <add name="CMS_25_A.Properties.Settings.CMS_25_AConnectionString"
+        connectionString="Data Source=K06R208PC08\SQLEXPRESS;Initial Catalog=CMS_25_A;User ID=student;Password=student"
+        providerName="System.Data.SqlClient" />
+</connectionStrings>
+
+AFTER (MySQL):
+-----------------------------------
+<connectionStrings>
+    <add name="CMS_25_A.Properties.Settings.CMS_25_AConnectionString"
+        connectionString="Server=localhost;Database=CMS_25_A;Uid=root;Pwd=;"
+        providerName="MySql.Data.MySqlClient" />
+</connectionStrings>
+
+CHANGES:
+  ✓ Changed from SQL Server to MySQL connection syntax
+  ✓ Server: localhost (update if your MySQL is on different server)
+  ✓ User: root (update if you use different username)
+  ✓ Password: empty (update if your MySQL has password)
+  ✓ Provider: MySql.Data.MySqlClient
+
+================================================================================
+## 2. CustomerForm.cs - CRITICAL SECURITY FIX
+================================================================================
+
+BEFORE (DANGEROUS - SQL Injection Vulnerability):
+-----------------------------------
+Line 10:  using System.Data.SqlClient;
+Line 20:  SqlConnection con = new SqlConnection(@"Data Source=K06R208PC08\SQLEXPRESS;Initial Catalog=CMS_25_A;User ID=student;Password=student");
+
+Line 60-68 (Save_Click method):
+private void Save_Click(object sender, EventArgs e)
+{
+    con.Open();
+    SqlCommand cmd = con.CreateCommand();
+    cmd.CommandType = CommandType.Text;
+    cmd.CommandText = "insert into tblCustomer values ('" + carNoTextBox.Text + "','" + nameTextBox.Text + "','" + addressTextBox.Text + "','" + modelTextBox.Text + "' )";
+    cmd.ExecuteNonQuery();
+    con.Close();
+    MessageBox.Show("Good!");
+}
+
+🔴 PROBLEMS:
+  ❌ Hardcoded connection string (difficult to change servers)
+  ❌ SQL INJECTION VULNERABILITY (malicious user input not sanitized)
+  ❌ Connection not properly disposed (resource leak)
+
+AFTER (SECURE - Parameterized Queries):
+-----------------------------------
+Line 10:  using MySql.Data.MySqlClient;
+Line 11:  using System.Configuration;
+
+Lines 22-27 (New Helper Method):
+// Use connection string from App.config instead of hardcoded value
+private MySqlConnection GetConnection()
+{
+    string connectionString = ConfigurationManager.ConnectionStrings["CMS_25_A.Properties.Settings.CMS_25_AConnectionString"].ConnectionString;
+    return new MySqlConnection(connectionString);
+}
+
+Lines 64-81 (Save_Click method - SECURED):
+private void Save_Click(object sender, EventArgs e)
+{
+    // Fixed: Use parameterized query to prevent SQL injection
+    using (MySqlConnection con = GetConnection())
+    {
+        con.Open();
+        MySqlCommand cmd = new MySqlCommand(
+            "INSERT INTO tblCustomer (CarNo, Name, Address, Model) VALUES (@CarNo, @Name, @Address, @Model)", 
+            con);
+        
+        cmd.Parameters.AddWithValue("@CarNo", carNoTextBox.Text);
+        cmd.Parameters.AddWithValue("@Name", nameTextBox.Text);
+        cmd.Parameters.AddWithValue("@Address", addressTextBox.Text);
+        cmd.Parameters.AddWithValue("@Model", modelTextBox.Text);
+        
+        cmd.ExecuteNonQuery();
+        con.Close();
+    }
+    MessageBox.Show("Good!");
+}
+
+✅ IMPROVEMENTS:
+  ✓ Uses connection from App.config (easy to update)
+  ✓ PARAMETERIZED QUERIES (prevents SQL injection attacks)
+  ✓ Proper resource disposal with 'using' statement
+  ✓ Column names specified (more explicit and safer)
+  ✓ Changed to MySQL provider
+
+SECURITY EXAMPLE - Why This Matters:
+  BEFORE: If user enters:  ABC'; DROP TABLE tblCustomer; --
+          Result: Your entire customer table would be DELETED!
+  
+  AFTER:  Same malicious input is treated as harmless text
+          Result: Safely stored as "ABC'; DROP TABLE tblCustomer; --"
+
+================================================================================
+## 3. Settings.settings - PROVIDER CHANGE
+================================================================================
+
+BEFORE (SQL Server):
+-----------------------------------
+<ConnectionString>Data Source=K06R208PC08\SQLEXPRESS;Initial Catalog=CMS_25_A;User ID=student;Password=student</ConnectionString>
+<ProviderName>System.Data.SqlClient</ProviderName>
+
+AFTER (MySQL):
+-----------------------------------
+<ConnectionString>Server=localhost;Database=CMS_25_A;Uid=root;Pwd=;</ConnectionString>
+<ProviderName>MySql.Data.MySqlClient</ProviderName>
+
+CHANGES:
+  ✓ Updated connection string syntax
+  ✓ Changed provider to MySQL
+
+================================================================================
+## 4. CMS_25_ADataSet.xsd - DATA PROVIDER UPDATE
+================================================================================
+
+BEFORE (SQL Server):
+-----------------------------------
+Line 7: Provider="System.Data.SqlClient"
+
+AFTER (MySQL):
+-----------------------------------
+Line 7: Provider="MySql.Data.MySqlClient"
+
+CHANGES:
+  ✓ Dataset now uses MySQL provider
+  ✓ All TableAdapters will use MySQL
+
+================================================================================
+## 5. NEW FILES CREATED
+================================================================================
+
+✅ create_mysql_database.sql
+   - Complete database schema for MySQL/MariaDB
+   - Creates 3 tables: tblCustomer, tblWorker, tblJobDetails
+   - Includes foreign key relationships
+   - Ready to execute in HeidiSQL
+
+✅ MIGRATION_GUIDE.md
+   - Step-by-step installation instructions
+   - NuGet package installation commands
+   - Troubleshooting tips
+
+================================================================================
+## WHAT YOU NEED TO DO NEXT
+================================================================================
+
+1. INSTALL MYSQL CONNECTOR (REQUIRED):
+   In Visual Studio Package Manager Console:
+   
+   Install-Package MySql.Data -Version 8.0.33
+
+2. CREATE DATABASE:
+   In HeidiSQL:
+   - Connect to localhost
+   - File → Load SQL file → select "create_mysql_database.sql"
+   - Press F9 to execute
+
+3. UPDATE PASSWORD (if needed):
+   In App.config, change:
+   Pwd=;  →  Pwd=your_password;
+
+4. BUILD PROJECT:
+   - Press Ctrl+Shift+B
+   - Fix any remaining references if needed
+
+5. TEST:
+   - Run application (F5)
+   - Try adding a customer
+   - Verify in HeidiSQL
+
+================================================================================
+## DATABASE SCHEMA CREATED
+================================================================================
+
+tblCustomer:
+  - CarNo VARCHAR(15) PRIMARY KEY
+  - Name VARCHAR(50)
+  - Address VARCHAR(50)
+  - Model VARCHAR(50)
+
+tblWorker:
+  - WorkerID INT PRIMARY KEY
+  - Name VARCHAR(50)
+
+tblJobDetails:
+  - JobID INT PRIMARY KEY AUTO_INCREMENT
+  - CarNo VARCHAR(50) FOREIGN KEY → tblCustomer(CarNo)
+  - WorkerID INT FOREIGN KEY → tblWorker(WorkerID)
+  - JobDate DATETIME
+  - KMs, Tuning, Alignment, Balancing, Tires, Weight (VARCHAR(10))
+  - OilChanged, OilQty, OilFilter, GearOil, GearOilQty (VARCHAR(10))
+  - Point, Condenser, Plug, PlugQty (VARCHAR(10))
+  - FuelFilter, AirFilter, Remarks (VARCHAR(10))
+
+================================================================================
+END OF REVIEW
+================================================================================
